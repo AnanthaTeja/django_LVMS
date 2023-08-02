@@ -1,4 +1,4 @@
-from .models import User, TchProfile
+from .models import User, TchProfile, StProfile, Leave
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
 
@@ -192,6 +192,63 @@ class TchprForm(forms.ModelForm):
             "tchexpr": forms.NumberInput(
                 attrs={
                     "class": "form-control my-2",
+                }
+            ),
+        }
+
+
+class StpForm(forms.ModelForm):
+    class Meta:
+        model = StProfile
+        fields = ["sbranch", "syear"]
+        widgets = {
+            "sbranch": forms.TextInput(
+                attrs={
+                    "class": "form-control my-2",
+                    "placeholder": "Enter Branch",
+                }
+            ),
+            "syear": forms.TextInput(
+                attrs={
+                    "class": "form-control my-2",
+                    "placeholder": "Enter Year",
+                }
+            ),
+        }
+
+
+class LeaveForm(forms.ModelForm):
+    class Meta:
+        model = Leave
+        fields = [
+            "leavetype",
+            "startdate",
+            "enddate",
+            "reason",
+            "leaveatch",
+        ]
+        widgets = {
+            "leavetype": forms.Select(
+                attrs={
+                    "class": "form-control my-2",
+                }
+            ),
+            "startdate": forms.DateInput(
+                attrs={
+                    "class": "form-control my-2",
+                    "type": "date",
+                }
+            ),
+            "enddate": forms.DateInput(
+                attrs={
+                    "class": "form-control my-2",
+                    "type": "date",
+                }
+            ),
+            "reason": forms.Textarea(
+                attrs={
+                    "class": "form-control my-2",
+                    "rows": 3,
                 }
             ),
         }

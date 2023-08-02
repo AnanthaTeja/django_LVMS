@@ -14,4 +14,6 @@ urlpatterns = [
     path("usrup/<int:h>/", views.userupdate, name="usp"),
     path("usrdel/<int:d>/", views.userdelete, name="usd"),
     path("upfle/", views.updprofile, name="upf"),
+    path("lvst/", views.leavelist, name="lvs"),
+    path("tclvlst/", views.tchlevlst, name="tclst"),
 ]

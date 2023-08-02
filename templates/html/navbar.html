@@ -16,6 +16,7 @@
         <li class="nav-item">
           <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'hm' %}">Home</a>
         </li>
+        
         <li class="nav-item">
           <a class="nav-link {% if request.path == '/abt/' %}active{% endif %}" href="{% url 'ab' %}">About</a>
         </li>
@@ -33,13 +34,14 @@
         <li class="nav-item">
           <a class="nav-link" href="{% url 'hm' %}">Access Denied!</a>
         </li>
-        {% elif request.user.role_type == '1'  and not request.user.is_superuser %}
+        {% comment %} Leaves Student {% endcomment %}
+        {% elif request.user.role_type == '1'  and not request.user.is_superuser and request.user.stprofile.sstatus == 1 %}
         <li class="nav-item">
-          <a class="nav-link" href="#">Leaves</a>
+          <a class="nav-link {% if request.path == '/lvst/' %}active{% endif %}" href="{% url 'lvs' %}">Leaves</a>
         </li>
-        {% elif request.user.role_type == '2'  and not request.user.is_superuser %}
+        {% elif request.user.role_type == '2'  and not request.user.is_superuser and request.user.tchprofile.tstatus == 1 %}
         <li class="nav-item">
-          <a class="nav-link" href="#">List of Leaves</a>
+          <a class="nav-link {% if request.path == "/tclvlst/" %}active{% endif %}" href="{% url 'tclst' %}">List of Leaves</a>
         </li>
         {% else %}
         {% endif %}

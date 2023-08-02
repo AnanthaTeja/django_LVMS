@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
-from .forms import AusForm, UsuserForm, UpForm, UspForm, TchprForm
+from .forms import AusForm, UsuserForm, UpForm, UspForm, TchprForm, StpForm, LeaveForm
 from django.contrib import messages
-from .models import User, TchProfile
+from .models import User, TchProfile, StProfile, Leave
 
 
 # Create your views here.
@@ -49,15 +49,7 @@ def userlist(request):
 
 
 def profile(request):
-    h = TchProfile.objects.get(tc_id=request.user.id)
-    g = User.objects.get(id=request.user.id)
-    d = {}
-    d[0] = h.tchdesg
-    d[1] = h.tchexpr
-    d[2] = h.tchsubject
-    d[3] = h.tchbrnch
-    d[4] = h.tc_id
-    return render(request, "html/profile.html", {"j": d})
+    return render(request, "html/profile.html")
 
 
 def userupdate(request, h):
@@ -83,6 +75,7 @@ def userdelete(request, d):
 
 def updprofile(request):
     k = User.objects.get(id=request.user.id)
+
     if request.user.role_type == "2":
         t = TchProfile.objects.all()
         m = []
@@ -96,6 +89,7 @@ def updprofile(request):
                     h.save()
                     b = y.save(commit=False)
                     b.tc_id = request.user.id
+                    b.tstatus = 1
                     b.save()
                     return redirect("/pfle")
             y = TchprForm()
@@ -105,22 +99,44 @@ def updprofile(request):
             p = TchProfile.objects.get(tc_id=request.user.id)
             if request.method == "POST":
                 h = UspForm(request.POST, request.FILES, instance=k)
-                y = TchprForm(request.POST)
+                y = TchprForm(request.POST, instance=p)
                 if h.is_valid() and y.is_valid():
                     h.save()
-                    b.save()
+                    y.save()
                     return redirect("/pfle")
             y = TchprForm(instance=p)
             h = UspForm(instance=k)
             return render(request, "html/updateprofile.html", {"e": h, "t": y})
     elif request.user.role_type == "1":
-        if request.method == "POST":
-            h = UspForm(request.POST, request.FILES, instance=k)
-            if h.is_valid():
-                h.save()
-                return redirect("/pfle")
-        h = UspForm(instance=k)
-        return render(request, "html/updateprofile.html", {"e": h})
+        j = StProfile.objects.all()
+        s = []
+        for i in j:
+            s.append(i.sc_id)
+        if request.user.id not in s:
+            if request.method == "POST":
+                h = UspForm(request.POST, request.FILES, instance=k)
+                n = StpForm(request.POST)
+                if h.is_valid() and n.is_valid:
+                    h.save()
+                    z = n.save(commit=False)
+                    z.sc_id = request.user.id
+                    z.sstatus = 1
+                    z.save()
+                    return redirect("/pfle")
+            h = UspForm(instance=k)
+            n = StpForm()
+            return render(request, "html/updateprofile.html", {"e": h, "a": n})
+        else:
+            v = StProfile.objects.get(sc_id=request.user.id)
+            if request.method == "POST":
+                h = UspForm(request.POST, request.FILES, instance=k)
+                n = StpForm(request.POST, instance=v)
+                if h.is_valid() and n.is_valid():
+                    h.save()
+                    n.save()
+                    return redirect("/pfle")
+            h = UspForm(instance=k)
+            return render(request, "html/updateprofile.html", {"e": h, "a": n})
     else:
         if request.method == "POST":
             h = UspForm(request.POST, request.FILES, instance=k)
@@ -129,3 +145,36 @@ def updprofile(request):
                 return redirect("/pfle")
         h = UspForm(instance=k)
         return render(request, "html/updateprofile.html", {"e": h})
+
+
+def leavelist(request):
+    p = Leave.objects.filter(st_id=request.user.id)
+    if request.method == "POST":
+        d = LeaveForm(request.POST, request.FILES)
+        if d.is_valid():
+            w = d.save(commit=False)
+            w.st_id = request.user.id
+            w.save()
+            return redirect("/lvst")
+    d = LeaveForm()
+    return render(request, "html/leavelist.html", {"z": d, "h": p})
+
+
+def tchlevlst(request):
+    y = User.objects.filter(role_type="1")
+    f = TchProfile.objects.get(tc_id=request.user.id)
+    r, p, m = {}, {}, {}
+    for i in y:
+        r[i.id] = i.username
+    k = StProfile.objects.all()
+    for j in k:
+        if j.sc_id in r and j.sbranch == f.tchbrnch:
+            p[j.sc_id] = j.syear, r[i.id][0]
+
+    # q = Leave.ob jects.all()
+    for z in p:
+        q = Leave.objects.all()
+        for v in q:
+            m[v.id] = v.leavetype, v.appldate, v.leavestatus, p[q.id][1], p[q.id][0]
+
+    return render(request, "html/teacherlist.html")
